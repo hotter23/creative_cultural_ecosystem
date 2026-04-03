@@ -29,7 +29,7 @@
 ## 项目结构
 
 ```
-short_video/
+creative_cultural_ecosystem/     # 项目根目录
 ├── src/                          # 前端代码
 │   ├── assets/                   # 静态资源
 │   ├── router/                   # 路由配置
@@ -346,6 +346,74 @@ pnpm run tauri:dev
 # 仅运行前端（不启动 Tauri）
 pnpm run dev
 
+## 数据存储位置
+
+应用程序安装后，所有用户数据都存储在 **exe 安装目录下** 的 `data` 文件夹中，而不是用户个人目录。这种设计确保了数据与应用程序的可移植性。
+
+### 目录结构
+
+```
+exe安装目录/
+├── content_creator.exe          # 应用程序主文件
+├── data/                        # 用户数据目录
+│   ├── content_creator.db       # SQLite 数据库文件
+│   ├── audio/                   # TTS 生成的音频文件
+│   │   └── tts_*.mp3           # 语音合成音频
+│   ├── mixer/                   # 混音文件目录
+│   │   └── 段落混音和章节混音文件
+│   └── character_images/        # 角色形象图片
+└── logs/                        # 应用程序日志
+    └── *.log                    # 按日期轮换的日志文件
+```
+
+### 详细说明
+
+#### 1. 数据库文件
+- **位置**: `{exe安装目录}/data/content_creator.db`
+- **名称**: `content_creator.db`（内容创作者数据库）
+- **类型**: SQLite 数据库
+- **包含内容**:
+  - 网文项目信息（novels 表）
+  - 章节内容（chapters 表）
+  - 段落数据（chapter_paragraphs 表）
+  - 音频任务记录（chapter_audios 表）
+  - 环境音配置（ambient_sounds 表）
+  - 角色信息（characters 表）
+  - 角色形象图片（character_images 表）
+  - 视频项目（videos 表）
+  - 系统配置（system_config 表）
+
+#### 2. 音频文件
+- **TTS 音频**: `{exe安装目录}/data/audio/`
+- **混音文件**: `{exe安装目录}/data/mixer/`
+- **角色形象**: `{exe安装目录}/data/character_images/`
+- **格式**: MP3（语音）、WAV/其他（混音）
+
+#### 3. 日志文件
+- **位置**: `{exe安装目录}/logs/`
+- **特性**: 按日期自动轮换（每天一个新文件）
+- **命名格式**: `YYYY-MM-DD.log`
+- **内容**: 包含所有应用程序操作日志，便于问题排查
+
+#### 4. 内置资源
+- **FFmpeg**: `{exe安装目录}/bin/ffmpeg.exe`
+  - 用于音频处理和合并
+
+### 数据迁移和备份
+
+由于所有数据都存储在应用程序目录下，迁移或备份时需要：
+
+1. 复制整个 `data` 文件夹
+2. 复制 `logs` 文件夹（如需保留日志）
+3. 重新安装后，将数据文件夹放回 exe 相同目录
+
+### 注意事项
+
+- **开发模式**: 开发时数据目录位于项目根目录的 `src-tauri/` 下
+- **安装模式**: 打包安装后，数据目录位于 exe 安装位置
+- **可移植性**: 数据与 exe 同目录，方便整体迁移
+- **清理数据**: 删除 `data` 文件夹将清除所有用户数据（谨慎操作）
+
 # 构建生产版本
 pnpm run tauri:build
 ```
@@ -359,16 +427,6 @@ pnpm run tauri:build
 
 2. **Python 环境**（用于 Stable Audio 环境音生成）
    - 系统会自动检测，也可手动配置路径
-
-## 数据库位置
-
-应用数据存储位置：
-
-- **Windows**: `%APPDATA%\com.wnx.shortvideo\`
-- **macOS**: `~/Library/Application Support/com.wnx.shortvideo/`
-- **Linux**: `~/.config/com.wnx.shortvideo/`
-
-数据库文件: `database.db`
 
 ## 开发说明
 
