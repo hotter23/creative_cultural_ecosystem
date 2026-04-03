@@ -1,0 +1,456 @@
+/* ==========================================================================
+   短剧AI系统 - 设计系统 CSS变量
+   Design System Variables
+   ========================================================================== */
+
+/* ==========================================================================
+   1. 颜色系统 (Color System)
+   ========================================================================== */
+
+/* 主色调 - 科技蓝 */
+:root {
+  /* Primary Colors */
+  --color-primary-50: #E6F4FF;
+  --color-primary-100: #BAE0FF;
+  --color-primary-200: #91CAFF;
+  --color-primary-300: #69B4FF;
+  --color-primary-400: #409EFF;
+  --color-primary-500: #1677FF;
+  --color-primary-600: #0958D9;
+  --color-primary-700: #003EB3;
+  --color-primary-800: #002C8C;
+  --color-primary-900: #001D66;
+
+  /* 品牌主色 - 使用 primary-500 */
+  --color-brand: var(--color-primary-500);
+  --color-brand-hover: var(--color-primary-600);
+  --color-brand-active: var(--color-primary-700);
+
+  /* 辅助色 - 温暖橙 */
+  --color-accent-50: #FFF7E6;
+  --color-accent-100: #FFE7B3;
+  --color-accent-200: #FFD780;
+  --color-accent-300: #FFC74D;
+  --color-accent-400: #FFAD1A;
+  --color-accent-500: #FF7A45;
+  --color-accent-600: #FF6B35;
+  --color-accent-700: #FA541C;
+  --color-accent-800: #D4380D;
+  --color-accent-900: #941600;
+
+  /* 功能色 */
+  --color-success: #52C41A;
+  --color-success-light: #95DE64;
+  --color-success-bg: rgba(82, 196, 26, 0.1);
+
+  --color-warning: #FAAD14;
+  --color-warning-light: #FFD666;
+  --color-warning-bg: rgba(250, 173, 20, 0.1);
+
+  --color-error: #FF4D4F;
+  --color-error-light: #FF7875;
+  --color-error-bg: rgba(255, 77, 79, 0.1);
+
+  --color-info: #1677FF;
+  --color-info-light: #69B4FF;
+  --color-info-bg: rgba(22, 119, 255, 0.1);
+
+  /* 段落类型颜色 */
+  --color-narration: #8B5CF6;
+  --color-narration-bg: rgba(139, 92, 246, 0.1);
+  --color-dialogue: #10B981;
+  --color-dialogue-bg: rgba(16, 185, 129, 0.1);
+  --color-environment: #F59E0B;
+  --color-environment-bg: rgba(245, 158, 11, 0.1);
+
+  /* 状态颜色 */
+  --color-status-done: var(--color-success);
+  --color-status-processing: var(--color-info);
+  --color-status-pending: #D9D9D9;
+  --color-status-error: var(--color-error);
+
+  /* 轨道颜色 - 用于混音器 */
+  --color-track-voice: var(--color-primary-500);
+  --color-track-ambient-1: #52C41A;
+  --color-track-ambient-2: #722ED1;
+  --color-track-ambient-3: #EB2F96;
+  --color-track-ambient-4: #FA8C16;
+  --color-track-ambient-5: #13C2C2;
+}
+
+/* ==========================================================================
+   2. 文本颜色 (Typography Colors)
+   ========================================================================== */
+
+:root {
+  /* 主要文本 */
+  --color-text-primary: #262626;
+  --color-text-regular: #595959;
+  --color-text-secondary: #8C8C8C;
+  --color-text-placeholder: #BFBFBF;
+  --color-text-disabled: #D9D9D9;
+
+  /* 标题层级 */
+  --color-heading-1: #262626;
+  --color-heading-2: #404040;
+  --color-heading-3: #595959;
+  --color-heading-4: #737373;
+  --color-heading-5: #8C8C8C;
+
+  /* 链接 */
+  --color-link: var(--color-info);
+  --color-link-hover: var(--color-primary-600);
+  --color-link-active: var(--color-primary-700);
+
+  /* 选中/高亮 */
+  --color-select-bg: var(--color-primary-50);
+  --color-highlight-bg: #FEF3CD;
+}
+
+/* ==========================================================================
+   3. 背景色 (Background Colors)
+   ========================================================================== */
+
+:root {
+  /* 页面背景 */
+  --color-bg-base: #F5F5F5;
+  --color-bg-container: #FFFFFF;
+  --color-bg-elevated: #FFFFFF;
+  --color-bg-overlay: rgba(0, 0, 0, 0.45);
+
+  /* 组件背景 */
+  --color-bg-layout: #F0F2F5;
+  --color-bg-header: #FFFFFF;
+  --color-bg-sidebar: #FFFFFF;
+  --color-bg-content: #FFFFFF;
+
+  /* 悬停/激活状态 */
+  --color-bg-hover: rgba(0, 0, 0, 0.04);
+  --color-bg-active: rgba(0, 0, 0, 0.08);
+
+  /* 浅色背景 */
+  --color-bg-light: #FAFAFA;
+  --color-bg-lighter: #F5F5F5;
+
+  /* 深色背景 */
+  --color-bg-dark: #141414;
+  --color-bg-darker: #0D0D0D;
+}
+
+/* ==========================================================================
+   4. 边框颜色 (Border Colors)
+   ========================================================================== */
+
+:root {
+  /* 边框 */
+  --color-border: #D9D9D9;
+  --color-border-light: #E8E8E8;
+  --color-border-lighter: #F0F0F0;
+  --color-border-strong: #BFBFBF;
+
+  /* 分隔线 */
+  --color-divider: #F0F0F0;
+  --color-divider-light: #FAFAFA;
+
+  /* 外边框 */
+  --color-outline: #D9D9D9;
+}
+
+/* ==========================================================================
+   5. 字体系统 (Typography)
+   ========================================================================== */
+
+:root {
+  /* 字体家族 */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+
+  /* 字号层级 */
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 20px;
+  --text-3xl: 24px;
+  --text-4xl: 30px;
+  --text-5xl: 38px;
+
+  /* 行高 */
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* 字重 */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* 字间距 */
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.01em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+}
+
+/* ==========================================================================
+   6. 间距系统 (Spacing)
+   ========================================================================== */
+
+:root {
+  /* 基础间距单位: 4px */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* 组件间距 */
+  --component-gap: var(--space-4);
+  --section-gap: var(--space-6);
+  --page-padding: var(--space-6);
+
+  /* Flex Gap */
+  --flex-gap-xs: var(--space-1);
+  --flex-gap-sm: var(--space-2);
+  --flex-gap-md: var(--space-3);
+  --flex-gap-lg: var(--space-4);
+  --flex-gap-xl: var(--space-6);
+}
+
+/* ==========================================================================
+   7. 圆角系统 (Border Radius)
+   ========================================================================== */
+
+:root {
+  /* 基础圆角 */
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-base: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
+
+  /* 组件专用圆角 */
+  --radius-button: var(--radius-base);
+  --radius-input: var(--radius-base);
+  --radius-card: var(--radius-lg);
+  --radius-modal: var(--radius-xl);
+  --radius-tag: var(--radius-sm);
+  --radius-avatar: var(--radius-full);
+  --radius-badge: var(--radius-full);
+  --radius-tooltip: var(--radius-md);
+  --radius-dropdown: var(--radius-md);
+}
+
+/* ==========================================================================
+   8. 阴影系统 (Shadow System)
+   ========================================================================== */
+
+:root {
+  /* 阴影层级 */
+  --shadow-none: none;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-base: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+
+  /* 功能性阴影 */
+  --shadow-hover: 0 8px 16px -4px rgba(0, 0, 0, 0.15);
+  --shadow-active: 0 4px 8px -2px rgba(0, 0, 0, 0.2);
+  --shadow-focus: 0 0 0 3px rgba(22, 119, 255, 0.3);
+  --shadow-focus-error: 0 0 0 3px rgba(255, 77, 79, 0.3);
+
+  /* 组件阴影 */
+  --shadow-card: var(--shadow-base);
+  --shadow-modal: var(--shadow-xl);
+  --shadow-dropdown: var(--shadow-lg);
+  --shadow-tooltip: var(--shadow-xl);
+}
+
+/* ==========================================================================
+   9. 动效系统 (Animation System)
+   ========================================================================== */
+
+:root {
+  /* 过渡时长 */
+  --transition-duration-fast: 150ms;
+  --transition-duration-base: 200ms;
+  --transition-duration-slow: 300ms;
+  --transition-duration-slower: 400ms;
+
+  /* 缓动函数 */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-in: cubic-bezier(0.2, 0, 0.8, 1);
+
+  /* 弹性动画 */
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-elastic: cubic-bezier(0.5, 1.5, 0.75, 1.25);
+
+  /* 组合缓动 */
+  --transition-fast: var(--transition-duration-fast) var(--ease-out);
+  --transition-base: var(--transition-duration-base) var(--ease-in-out);
+  --transition-slow: var(--transition-duration-slow) var(--ease-in-out);
+}
+
+/* ==========================================================================
+   10. Z-Index 层级
+   ========================================================================== */
+
+:root {
+  --z-index-base: 0;
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-modal-backdrop: 1040;
+  --z-index-modal: 1050;
+  --z-index-popover: 1060;
+  --z-index-tooltip: 1070;
+  --z-index-toast: 1080;
+}
+
+/* ==========================================================================
+   11. 布局尺寸
+   ========================================================================== */
+
+:root {
+  /* Header */
+  --header-height: 60px;
+  --header-bg: var(--color-bg-header);
+  --header-padding: 0 var(--page-padding);
+  --header-border-bottom: 1px solid var(--color-border-light);
+
+  /* Sidebar */
+  --sidebar-width: 220px;
+  --sidebar-collapsed-width: 64px;
+  --sidebar-bg: var(--color-bg-sidebar);
+  --sidebar-border-right: 1px solid var(--color-border-light);
+  --sidebar-padding: var(--space-4);
+
+  /* 菜单 */
+  --menu-item-height: 44px;
+  --menu-item-padding: var(--space-4);
+  --menu-icon-size: 18px;
+
+  /* Footer */
+  --footer-height: 48px;
+  --footer-bg: var(--color-bg-header);
+  --footer-border-top: 1px solid var(--color-border-light);
+
+  /* 页面容器 */
+  --page-min-height: calc(100vh - var(--header-height));
+  --page-padding: var(--space-6);
+
+  /* 卡片间距 */
+  --card-padding: var(--space-5);
+  --card-gap: var(--space-4);
+}
+
+/* ==========================================================================
+   12. 混音器专用变量
+   ========================================================================== */
+
+:root {
+  /* 轨道 */
+  --track-height: 80px;
+  --track-header-width: 150px;
+  --track-gap: 1px;
+
+  /* 时间刻度 */
+  --ruler-height: 30px;
+  --ruler-mark-height: 10px;
+  --ruler-mark-small: 5px;
+
+  /* 片段 */
+  --clip-min-width: 20px;
+  --clip-padding: var(--space-2);
+  --clip-resize-handle-width: 8px;
+  --clip-border-radius: var(--radius-sm);
+
+  /* 播放头 */
+  --playhead-width: 2px;
+  --playhead-color: var(--color-error);
+
+  /* 波形 */
+  --waveform-fill: rgba(22, 119, 255, 0.6);
+  --waveform-stroke: var(--color-primary-500);
+
+  /* 缩放 */
+  --zoom-min: 10px;
+  --zoom-max: 200px;
+  --zoom-default: 50px;
+}
+
+/* ==========================================================================
+   13. 响应式断点
+   ========================================================================== */
+
+:root {
+  --screen-xs: 480px;
+  --screen-sm: 576px;
+  --screen-md: 768px;
+  --screen-lg: 992px;
+  --screen-xl: 1200px;
+  --screen-2xl: 1400px;
+  --screen-3xl: 1600px;
+}
+
+/* ==========================================================================
+   14. 混音器断点覆盖
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+  :root {
+    --sidebar-width: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 0px;
+    --header-height: 50px;
+    --page-padding: var(--space-4);
+  }
+}
+
+/* ==========================================================================
+   15. 深色主题变量 (可选)
+   ========================================================================== */
+
+[data-theme="dark"] {
+  --color-bg-base: #141414;
+  --color-bg-container: #1F1F1F;
+  --color-bg-elevated: #262626;
+
+  --color-text-primary: #E8E8E8;
+  --color-text-regular: #D9D9D9;
+  --color-text-secondary: #8C8C8C;
+  --color-text-placeholder: #595959;
+
+  --color-border: #434343;
+  --color-border-light: #303030;
+
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-modal: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}

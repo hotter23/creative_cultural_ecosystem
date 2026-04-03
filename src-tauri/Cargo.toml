@@ -1,0 +1,70 @@
+[package]
+name = "short_video"
+version = "0.1.0"
+description = "AI内容创作平台 - 网文、听书、视频动画生成管理"
+authors = ["you"]
+edition = "2021"
+default-run = "short_video"
+
+
+
+[lib]
+name = "short_video_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "short_video"
+path = "src/main.rs"
+
+
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["protocol-asset"] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-http = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1.0"
+thiserror = "1.0"
+
+# 数据库
+rusqlite = { version = "0.30", features = ["bundled", "chrono", "serde_json"] }
+
+# 异步运行时
+tokio = { version = "1.35", features = ["full"] }
+
+# HTTP客户端
+reqwest = { version = "0.11", features = ["json", "stream"] }
+
+# 工具
+chrono = { version = "0.4", features = ["serde", "rkyv"] }
+uuid = { version = "1.6", features = ["v4", "serde"] }
+walkdir = "2.4"
+tempfile = "3.9"
+html2text = "0.6"
+tar = "0.4"
+flate2 = "1.0"
+
+# 日志
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-appender = "0.2"
+
+# MCP
+async-trait = "0.1"
+axum = "0.7"
+tokio-util = "0.7"
+tokio-stream = { version = "0.1", features = ["sync"] }
+bytes = "1.0"
+mime = "0.3"
+http = "1.0"
+http-body-util = "0.1"
+serde_urlencoded = "0.7"
+dirs = "5.0"
+directories-next = "2.0"
+regex = "1.10"
