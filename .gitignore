@@ -24,3 +24,9 @@ dist-ssr
 *.sw?
 
 agent.md
+.venv
+scripts/build/
+scripts/dist/
+scripts/model/
+
+stable_audio/
