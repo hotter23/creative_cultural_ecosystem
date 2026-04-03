@@ -230,11 +230,13 @@ export const useMixerStore = defineStore('mixer', () => {
       const clip = track.clips.find(c => c.id === clipId);
       if (clip) {
         const minDuration = 0.1;
-        const maxDuration = clip.duration + (clip.offset || 0);
+        const maxDurationForLeft = clip.duration + (clip.offset || 0);
 
         if (edge === 'right') {
-          clip.duration = clamp(newDuration, minDuration, maxDuration);
+          // 右侧 resize：只限制最小值，不限制最大值
+          clip.duration = clamp(newDuration, minDuration, Infinity);
         } else {
+          // 左侧 resize：限制最大值以防止超出原始范围
           const delta = clip.duration - newDuration;
           if (delta >= -clip.offset) {
             clip.startTime += delta;

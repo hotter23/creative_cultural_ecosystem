@@ -6,11 +6,7 @@
         :key="track.id"
         :track="track"
         @update="handleTrackUpdate"
-        @remove="handleRemoveTrack"
       />
-      <button @click="handleAddTrack" class="add-track-btn">
-        + 添加轨道
-      </button>
     </div>
 
     <div class="timeline-body" ref="timelineBody">
@@ -31,6 +27,7 @@
           :style="{ width: `${duration * zoom}px` }"
           @dragover.prevent="handleContainerDragOver"
           @drop="handleContainerDrop"
+          @dragend="handleDragEnd"
         >
           <AudioTrack
             v-for="track in tracks"
@@ -42,11 +39,11 @@
             :isDragOver="dragOverTrackId === track.id"
             @selectClip="handleSelectClip"
             @moveClip="handleMoveClip"
-            @resizeClip="handleResizeClip"
             @dragStart="handleClipDragStart"
+            @dragEnd="handleClipDragEnd"
             @dragOver="handleTrackDragOver(track.id)"
             @dragLeave="handleTrackDragLeave"
-            @drop="handleTrackDrop(track.id)"
+            @drop="handleTrackDrop"
           />
 
           <Playhead
@@ -70,6 +67,7 @@ import AudioTrack from './AudioTrack.vue';
 import Playhead from './Playhead.vue';
 import type { AudioTrack as AudioTrackType, AudioClip } from '../types';
 import { clamp } from '../types';
+import { ElMessage } from 'element-plus';
 
 const store = useMixerStore();
 
@@ -88,6 +86,22 @@ const dragOverTrackId = ref<string | null>(null);
 
 const isDragging = ref(false);
 const dragStartPos = ref({ x: 0, y: 0 });
+
+// 本地拖拽数据状态
+const localDragData = ref<any>(null);
+
+const emit = defineEmits<{
+  (e: 'dragEnd'): void;
+}>();
+
+// 监听父组件的拖拽状态变化
+const props = defineProps<{
+  currentDragData: any;
+}>();
+
+watch(() => props.currentDragData, (newVal) => {
+  localDragData.value = newVal;
+}, { immediate: true });
 
 onMounted(() => {
   updateContainerWidth();
@@ -126,14 +140,6 @@ function handleScroll(e: Event) {
   store.setScrollX(target.scrollLeft);
 }
 
-function handleAddTrack() {
-  store.addTrack('ambient');
-}
-
-function handleRemoveTrack(trackId: string) {
-  store.removeTrack(trackId);
-}
-
 function handleTrackUpdate(trackId: string, updates: Partial<AudioTrackType>) {
   store.updateTrack(trackId, updates);
 }
@@ -146,22 +152,23 @@ function handleMoveClip(data: { clipId: string; newStartTime: number; newTrackId
   store.moveClip(data.clipId, data.newStartTime, data.newTrackId);
 }
 
-function handleResizeClip(data: { clipId: string; newDuration: number; edge: 'left' | 'right' }) {
-  store.resizeClip(data.clipId, data.newDuration, data.edge);
-}
-
-function handleClipDragStart(clipId: string, e: DragEvent) {
+function handleClipDragStart(clipId: string, e: MouseEvent) {
   const clip = store.getClipById(clipId);
   if (!clip) return;
 
   const dragData = {
     type: 'audio-clip',
     clipId: clip.id,
+    name: clip.name,
+    duration: clip.duration,
     operation: 'move'
   };
 
-  e.dataTransfer!.setData('application/json', JSON.stringify(dragData));
-  e.dataTransfer!.effectAllowed = 'move';
+  localDragData.value = dragData;
+}
+
+function handleClipDragEnd() {
+  localDragData.value = null;
 }
 
 function handleTrackDragOver(trackId: string) {
@@ -176,68 +183,91 @@ function handleTrackDragLeave() {
   dragOverTrackId.value = null;
 }
 
+function handleDragEnd() {
+  localDragData.value = null;
+  emit('dragEnd');
+}
+
 // 处理容器级别的拖拽（用于拖拽到空白区域）
 function handleContainerDragOver(e: DragEvent) {
   e.preventDefault();
-  console.log('[TimelineEditor] Container dragover');
 }
 
 // 处理容器级别的放置
 function handleContainerDrop(e: DragEvent) {
   e.preventDefault();
-  console.log('[TimelineEditor] Container drop - 未找到目标轨道');
 }
 
 // 处理轨道级别的放置
-function handleTrackDrop(trackId: string) {
-  return (data: { clipId: string; e: DragEvent }) => {
-    const e = data.e as DragEvent;
-    e.preventDefault();
-    e.stopPropagation();
-    dragOverTrackId.value = null;
+function handleTrackDrop(data: { trackId: string; event: DragEvent }) {
+  const e = data.event as DragEvent;
+  const trackId = data.trackId;
+  e.preventDefault();
+  e.stopPropagation();
+  dragOverTrackId.value = null;
 
-    try {
-      const dragData = JSON.parse(e.dataTransfer!.getData('application/json'));
+  try {
+    let dragData = localDragData.value;
 
-      console.log('[TimelineEditor] Drop data:', dragData);
-
-      if (dragData.type === 'ambient-sound' && dragData.ambientId) {
-        const targetTrack = tracks.value.find(t => t.id === trackId);
-        if (!targetTrack) {
-          console.error('[TimelineEditor] 未找到目标轨道:', trackId);
-          return;
-        }
-
-        // 计算放置位置
-        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-        const x = e.clientX - rect.left + scrollX.value;
-        const startTime = clamp(x / zoom.value, 0, duration.value);
-
-        const newClip: AudioClip = {
-          id: `clip-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          type: 'ambient',
-          trackId: targetTrack.id,
-          name: dragData.name || '环境音',
-          filePath: dragData.filePath || '',
-          startTime: startTime,
-          duration: dragData.duration || 10,
-          offset: 0,
-          volume: 1.0,
-          fadeIn: 0,
-          fadeOut: 0,
-          isMuted: false,
-          color: targetTrack.color,
-          sourceId: dragData.ambientId,
-          sourceType: 'ambient'
-        };
-
-        console.log('[TimelineEditor] 添加环境音片段:', newClip);
-        store.addClip(targetTrack.id, newClip);
-      }
-    } catch (error) {
-      console.error('[TimelineEditor] Drop error:', error);
+    if (!dragData && props.currentDragData) {
+      dragData = props.currentDragData;
     }
-  };
+
+    if (!dragData && e.dataTransfer) {
+      try {
+        const jsonStr = e.dataTransfer.getData('application/json');
+        if (jsonStr) {
+          dragData = JSON.parse(jsonStr);
+        }
+      } catch (err) {
+        // 忽略
+      }
+    }
+
+    if (!dragData) {
+      ElMessage.error('未获取到拖拽数据');
+      return;
+    }
+
+    if (dragData.type === 'ambient-sound' && dragData.ambientId) {
+      const targetTrack = tracks.value.find(t => t.id === trackId);
+      if (!targetTrack) {
+        ElMessage.error('未找到目标轨道');
+        return;
+      }
+
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const x = e.clientX - rect.left + scrollX.value;
+      const startTime = clamp(x / zoom.value, 0, duration.value);
+
+      const newClip: AudioClip = {
+        id: `clip-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        type: 'ambient',
+        trackId: targetTrack.id,
+        name: dragData.name || '环境音',
+        filePath: dragData.filePath || '',
+        startTime: startTime,
+        duration: dragData.duration || 10,
+        offset: 0,
+        volume: 1.0,
+        fadeIn: 0,
+        fadeOut: 0,
+        isMuted: false,
+        color: targetTrack.color,
+        sourceId: dragData.ambientId,
+        sourceType: 'ambient'
+      };
+
+      store.addClip(targetTrack.id, newClip);
+      ElMessage.success(`已添加 ${newClip.name} 到轨道`);
+    } else {
+      ElMessage.error('不支持的拖拽类型');
+    }
+
+    localDragData.value = null;
+  } catch (error) {
+    ElMessage.error('拖拽放置失败');
+  }
 }
 
 function handleKeyDown(e: KeyboardEvent) {
@@ -291,25 +321,5 @@ function handleKeyDown(e: KeyboardEvent) {
 .tracks-inner {
   position: relative;
   min-height: 100%;
-}
-
-.add-track-btn {
-  width: 150px;
-  min-width: 150px;
-  height: 80px;
-  border: none;
-  background: var(--mixer-bg-secondary);
-  color: var(--mixer-text-secondary);
-  cursor: pointer;
-  font-size: 13px;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.add-track-btn:hover {
-  background: var(--mixer-primary-color);
-  color: white;
 }
 </style>

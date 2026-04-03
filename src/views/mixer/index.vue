@@ -135,6 +135,7 @@
             draggable="true"
             @click="handleAddAmbient(ambient)"
             @dragstart="handleAmbientDragStart($event, ambient)"
+            @dragend="handleDragEnd"
           >
             <span class="ambient-card__icon">🌧️</span>
             <span class="ambient-card__name">{{ ambient.name }}</span>
@@ -154,7 +155,7 @@
 
     <!-- 时间轴区域 -->
     <div class="mixer-timeline">
-      <TimelineEditor />
+      <TimelineEditor :currentDragData="currentDragData" @dragEnd="handleDragEnd" />
     </div>
 
     <!-- 播放控制 -->
@@ -212,6 +213,9 @@ interface AmbientSound {
 }
 
 const store = useMixerStore();
+
+// 全局拖拽状态（解决 Tauri 中 dataTransfer 不稳定的问题）
+const currentDragData = ref<any>(null);
 
 const activePanel = ref<PanelType>(null);
 const selectedParagraphId = ref<number | null>(null);
@@ -369,7 +373,6 @@ async function addParagraphToTrack(para: Paragraph) {
 
   // 获取音频实际时长
   const actualDuration = await getAudioDuration(audioSrc);
-  console.log(`[段落] P${para.paragraph_index + 1} 实际时长: ${actualDuration}s`);
 
   // 计算插入位置（追加到末尾）
   let currentEndTime = 0;
@@ -433,9 +436,19 @@ function handleAmbientDragStart(e: DragEvent, ambient: AmbientSound) {
     duration: ambient.duration || 10
   };
 
+  // 设置全局拖拽状态（解决 Tauri 中 dataTransfer 不稳定的问题）
+  currentDragData.value = dragData;
+
+  // 保留 dataTransfer 作为兼容
   e.dataTransfer!.setData('application/json', JSON.stringify(dragData));
   e.dataTransfer!.effectAllowed = 'copy';
-  console.log('[Mixer] 开始拖拽环境音:', ambient.name);
+  console.log('[拖拽] 开始拖拽环境音:', ambient.name, '| duration:', dragData.duration);
+}
+
+// 拖拽结束，清除全局状态
+function handleDragEnd() {
+  console.log('[拖拽] 拖拽结束');
+  currentDragData.value = null;
 }
 
 async function handleAddAmbient(ambient: AmbientSound) {
@@ -459,7 +472,6 @@ async function handleAddAmbient(ambient: AmbientSound) {
 
   // 获取音频实际时长
   const actualDuration = await getAudioDuration(audioSrc);
-  console.log(`[环境音] ${ambient.name} 实际时长: ${actualDuration}s`);
 
   const clip = createDefaultClip(
     targetTrack.id,

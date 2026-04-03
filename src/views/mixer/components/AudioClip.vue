@@ -6,17 +6,9 @@
       'is-dragging': isDragging
     }"
     :style="clipStyle"
-    draggable="true"
     @click.stop="handleClick"
-    @dragstart="handleDragStart"
-    @drag="handleDrag"
-    @dragend="handleDragEnd"
+    @mousedown="handleMouseDown"
   >
-    <div
-      class="clip-resize-handle left"
-      @mousedown.stop="startResize($event, 'left')"
-    />
-
     <div class="clip-content">
       <WaveformCanvas
         v-if="clip.waveformData"
@@ -27,11 +19,6 @@
     </div>
 
     <div class="clip-label">{{ clip.name }}</div>
-
-    <div
-      class="clip-resize-handle right"
-      @mousedown.stop="startResize($event, 'right')"
-    />
   </div>
 </template>
 
@@ -50,119 +37,78 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'select', clipId: string): void;
   (e: 'move', data: { clipId: string; newStartTime: number }): void;
-  (e: 'resize', data: { clipId: string; newDuration: number; edge: 'left' | 'right' }): void;
-  (e: 'dragStart', clipId: string, e: DragEvent): void;
+  (e: 'dragStart', clipId: string, event: DragEvent): void;
+  (e: 'dragEnd'): void;
 }>();
 
 const isDragging = ref(false);
-const isResizing = ref(false);
-const resizeEdge = ref<'left' | 'right'>('right');
-
 const clipStyle = computed(() => ({
   left: `${props.clip.startTime * props.zoom}px`,
   width: `${props.clip.duration * props.zoom}px`,
   backgroundColor: props.clip.color
 }));
 
-let dragStartX = 0;
 let dragStartTime = 0;
-let dragStartDuration = 0;
-let resizeStartX = 0;
-let resizeStartDuration = 0;
-let resizeStartOffset = 0;
-
-// 【P6修复】添加点击和拖拽状态追踪
-let clickStartTime = 0;
 let clickStartPos = { x: 0, y: 0 };
 let hasMoved = false;
 
 function handleClick(e: MouseEvent) {
-  // 只有在非拖拽、非调整大小状态下才触发选中
-  if (!isDragging.value && !isResizing.value && !hasMoved) {
+  // 只有在没有移动过的情况下才触发选中
+  if (!hasMoved) {
     emit('select', props.clip.id);
   }
 }
 
-function handleDragStart(e: DragEvent) {
+function handleMouseDown(e: MouseEvent) {
+  if (e.button !== 0) return;
+
+  // 开始监听拖拽
   isDragging.value = true;
   hasMoved = false;
-  clickStartTime = Date.now();
   clickStartPos = { x: e.clientX, y: e.clientY };
-  dragStartX = e.clientX;
   dragStartTime = props.clip.startTime;
 
-  emit('dragStart', props.clip.id, e);
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('mouseup', handleMouseUp);
 }
 
-function handleDrag(e: DragEvent) {
+function handleMouseMove(e: MouseEvent) {
   if (!isDragging.value) return;
 
-  // 检查是否真的移动了
   const deltaX = e.clientX - clickStartPos.x;
   const deltaY = e.clientY - clickStartPos.y;
-  if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+
+  // 超过阈值才算移动
+  if (!hasMoved && (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5)) {
     hasMoved = true;
+    emit('dragStart', props.clip.id, e);
   }
 
-  const deltaTime = deltaX / props.zoom;
-  const newStartTime = clamp(dragStartTime + deltaTime, 0, Infinity);
+  if (hasMoved) {
+    const deltaTime = deltaX / props.zoom;
+    const newStartTime = clamp(dragStartTime + deltaTime, 0, Infinity);
 
-  emit('moveClip', {
-    clipId: props.clip.id,
-    newStartTime
-  });
+    emit('move', {
+      clipId: props.clip.id,
+      newStartTime
+    });
+  }
 }
 
-function handleDragEnd() {
-  // 延迟重置状态，确保 click 事件不会触发
+function handleMouseUp() {
+  isDragging.value = false;
+  document.removeEventListener('mousemove', handleMouseMove);
+  document.removeEventListener('mouseup', handleMouseUp);
+
+  if (hasMoved) {
+    emit('dragEnd');
+  }
+
   setTimeout(() => {
-    isDragging.value = false;
     hasMoved = false;
   }, 50);
 }
 
-function startResize(e: MouseEvent, edge: 'left' | 'right') {
-  isResizing.value = true;
-  resizeEdge.value = edge;
-  resizeStartX = e.clientX;
-  resizeStartDuration = props.clip.duration;
-  resizeStartOffset = props.clip.offset;
-
-  document.addEventListener('mousemove', handleResize);
-  document.addEventListener('mouseup', stopResize);
-}
-
-function handleResize(e: MouseEvent) {
-  if (!isResizing.value) return;
-
-  const deltaX = e.clientX - resizeStartX;
-  const deltaDuration = deltaX / props.zoom;
-
-  let newDuration: number;
-
-  if (resizeEdge.value === 'right') {
-    newDuration = clamp(resizeStartDuration + deltaDuration, 0.1, Infinity);
-  } else {
-    newDuration = clamp(resizeStartDuration - deltaDuration, 0.1, resizeStartDuration + resizeStartOffset);
-  }
-
-  emit('resize', {
-    clipId: props.clip.id,
-    newDuration,
-    edge: resizeEdge.value
-  });
-}
-
-function stopResize() {
-  isResizing.value = false;
-  document.removeEventListener('mousemove', handleResize);
-  document.removeEventListener('mouseup', stopResize);
-}
-
-onUnmounted(() => {
-  document.removeEventListener('mousemove', handleResize);
-  document.removeEventListener('mouseup', stopResize);
-});
 </script>
 
 <style scoped>
@@ -213,31 +159,5 @@ onUnmounted(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.clip-resize-handle {
-  position: absolute;
-  top: 0;
-  width: 8px;
-  height: 100%;
-  cursor: ew-resize;
-  background: rgba(255, 255, 255, 0.1);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.clip-resize-handle:hover {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.clip-resize-handle.left {
-  left: 0;
-  border-radius: 4px 0 0 4px;
-}
-
-.clip-resize-handle.right {
-  right: 0;
-  border-radius: 0 4px 4px 0;
 }
 </style>

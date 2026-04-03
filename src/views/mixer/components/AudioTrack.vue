@@ -31,8 +31,8 @@
       :isSelected="clip.id === selectedClipId"
       @select="handleSelectClip"
       @move="handleMoveClip"
-      @resize="handleResizeClip"
       @dragStart="handleClipDragStart"
+      @dragEnd="handleClipDragEnd"
     />
   </div>
 </template>
@@ -54,10 +54,11 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'selectClip', clipId: string | null): void;
   (e: 'moveClip', data: { clipId: string; newStartTime: number; newTrackId?: string }): void;
-  (e: 'resizeClip', data: { clipId: string; newDuration: number; edge: 'left' | 'right' }): void;
-  (e: 'dragStart', clipId: string, e: DragEvent): void;
+  (e: 'dragStart', clipId: string, event: MouseEvent): void;
+  (e: 'dragEnd'): void;
   (e: 'dragOver'): void;
   (e: 'dragLeave'): void;
+  (e: 'drop', data: { trackId: string; event: DragEvent }): void;
 }>();
 
 const store = useMixerStore();
@@ -82,12 +83,12 @@ function handleMoveClip(data: { clipId: string; newStartTime: number }) {
   emit('moveClip', { ...data, newTrackId: undefined });
 }
 
-function handleResizeClip(data: { clipId: string; newDuration: number; edge: 'left' | 'right' }) {
-  emit('resizeClip', data);
+function handleClipDragStart(clipId: string, e: MouseEvent) {
+  emit('dragStart', clipId, e);
 }
 
-function handleClipDragStart(clipId: string, e: DragEvent) {
-  emit('dragStart', clipId, e);
+function handleClipDragEnd() {
+  emit('dragEnd');
 }
 
 function handleDragOver(e: DragEvent) {
@@ -103,7 +104,7 @@ function handleDragLeave() {
 function handleDrop(e: DragEvent) {
   e.preventDefault();
   e.stopPropagation();
-  emit('drop', { clipId: track.id, e });
+  emit('drop', { trackId: props.track.id, event: e });
 }
 </script>
 

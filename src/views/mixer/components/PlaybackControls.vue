@@ -78,7 +78,6 @@ watch(masterVolume, (newVal) => {
 watch(
   () => store.tracks,
   async (newTracks) => {
-    console.log('[PlaybackControls] Tracks 发生变化:', newTracks.length, '个轨道');
     await loadAllAudioBuffers();
     updateTrackGains();
   },
@@ -97,34 +96,24 @@ onUnmounted(() => {
 async function loadAllAudioBuffers() {
   const mixer = getMixerEngine();
 
-  console.log('[PlaybackControls] 开始加载音频缓冲...');
-
   for (const track of tracks.value) {
     // 确保轨道 GainNode 已创建
     if (!mixer['trackGains'].has(track.id)) {
       mixer.createTrackGain(track.id, track.volume);
     }
 
-    console.log(`[PlaybackControls] 轨道: ${track.name}, ${track.clips.length} 个片段`);
-
     for (const clip of track.clips) {
       const bufferKey = clip.filePath || clip.id;
 
       if (clip.filePath && !mixer['audioBuffers'].has(bufferKey)) {
         try {
-          console.log(`[PlaybackControls] 加载音频缓冲: ${clip.name} - ${clip.filePath}`);
           await mixer.loadAudio(bufferKey, clip.filePath);
-          console.log(`[PlaybackControls] ✅ 音频加载成功: ${clip.name}`);
         } catch (error) {
           console.error(`[PlaybackControls] ❌ 加载音频失败: ${clip.name}`, error);
         }
-      } else {
-        console.log(`[PlaybackControls] 跳过已加载的音频: ${clip.name}`);
       }
     }
   }
-
-  console.log('[PlaybackControls] 音频缓冲加载完成');
 }
 
 // 【P1修复】更新轨道 GainNode
@@ -133,7 +122,6 @@ function updateTrackGains() {
 
   for (const track of tracks.value) {
     mixer.setTrackVolume(track.id, track.volume);
-    console.log(`[PlaybackControls] 更新轨道音量: ${track.name} = ${track.volume * 100}%`);
   }
 }
 

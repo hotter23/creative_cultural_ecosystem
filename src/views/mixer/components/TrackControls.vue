@@ -27,15 +27,6 @@
         @input="updateVolume"
         title="音量"
       />
-      <button
-        v-if="track.type === 'ambient'"
-        class="track-btn"
-        @click="removeTrack"
-        title="删除轨道"
-        style="margin-left: auto"
-      >
-        🗑️
-      </button>
     </div>
   </div>
 </template>
@@ -50,7 +41,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update', trackId: string, updates: Partial<AudioTrack>): void;
-  (e: 'remove', trackId: string): void;
 }>();
 
 // 【P3修复】导入 AudioMixer
@@ -78,10 +68,6 @@ function updateVolume(e: Event) {
 
   // 【P3修复】同步到 AudioMixer
   mixer.setTrackVolume(props.track.id, value);
-}
-
-function removeTrack() {
-  emit('remove', props.track.id);
 }
 </script>
 

@@ -19,7 +19,6 @@ export class AudioMixerEngine {
       this.masterGain = this.audioContext.createGain();
       this.masterGain.connect(this.audioContext.destination);
       this.masterGain.gain.value = this.masterVolume;
-      console.log('[AudioMixer] ✅ AudioContext 初始化成功');
     } else {
       console.error('[AudioMixer] ❌ AudioContext 初始化失败');
     }
@@ -28,7 +27,6 @@ export class AudioMixerEngine {
   async resume(): Promise<void> {
     if (this.audioContext && this.audioContext.state === 'suspended') {
       await this.audioContext.resume();
-      console.log('[AudioMixer] ✅ AudioContext 已恢复');
     }
   }
 
@@ -36,8 +34,6 @@ export class AudioMixerEngine {
     if (!this.audioContext) {
       throw new Error('AudioContext not initialized');
     }
-
-    console.log(`[AudioMixer] 加载音频: ${id} -> ${url}`);
 
     try {
       const response = await fetch(url);
@@ -48,8 +44,6 @@ export class AudioMixerEngine {
       const arrayBuffer = await response.arrayBuffer();
       const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
       this.audioBuffers.set(id, audioBuffer);
-
-      console.log(`[AudioMixer] ✅ 音频加载成功: ${id}, 时长: ${audioBuffer.duration.toFixed(2)}s`);
     } catch (error) {
       console.error(`[AudioMixer] ❌ 加载音频失败 ${id}:`, error);
       throw error;
@@ -69,7 +63,6 @@ export class AudioMixerEngine {
       gain.connect(this.masterGain);
       this.trackGains.set(trackId, gain);
       this.trackVolumes.set(trackId, volume);
-      console.log(`[AudioMixer] ✅ 创建轨道 GainNode: ${trackId}, 音量: ${volume * 100}%`);
     }
 
     return this.trackGains.get(trackId) || null;
@@ -87,8 +80,6 @@ export class AudioMixerEngine {
       const gain = this.trackGains.get(trackId)!;
       gain.gain.value = clampedVolume;
     }
-
-    console.log(`[AudioMixer] 设置轨道音量: ${trackId} = ${clampedVolume * 100}%`);
   }
 
   getTrackVolume(trackId: string): number {
